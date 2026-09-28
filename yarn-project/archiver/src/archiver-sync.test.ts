@@ -1596,6 +1596,35 @@ describe('Archiver Sync', () => {
       expect(await archiver.getCheckpointNumber()).toEqual(CheckpointNumber(2));
     }, 15_000);
 
+    it('re-fetches a rolled-back checkpoint range without waiting for another L1 block', async () => {
+      expect(await archiver.getCheckpointNumber()).toEqual(CheckpointNumber(0));
+      await fake.addCheckpoint(CheckpointNumber(1), {
+        l1BlockNumber: 70n,
+        messagesL1BlockNumber: 50n,
+        numL1ToL2Messages: 3,
+      });
+      fake.setL1BlockNumber(100n);
+      await archiver.syncImmediate();
+      expect(await archiver.getCheckpointNumber()).toEqual(CheckpointNumber(1));
+      await archiverStore.blocks.setSynchedL1BlockNumber(200n);
+      await archiverStore.blocks.setPendingChainValidationStatus({ valid: true });
+      await fake.addCheckpoint(CheckpointNumber(2), {
+        l1BlockNumber: 150n,
+        messagesL1BlockNumber: 130n,
+        numL1ToL2Messages: 3,
+      });
+      // First sync at head 201 detects the gap and rolls the scan point back, and must not advertise 201 as synced.
+      fake.setL1BlockNumber(201n);
+      await archiver.syncImmediate();
+      expect(await archiver.getCheckpointNumber()).toEqual(CheckpointNumber(1));
+      // A second sync at the SAME head re-reads the rewound scan point and ingests the checkpoint.
+      await archiver.syncImmediate();
+      expect(await archiver.getCheckpointNumber()).toEqual(CheckpointNumber(2));
+      // A third same-head sync is a stable no-op: the head is now genuinely synced.
+      await archiver.syncImmediate();
+      expect(await archiver.getCheckpointNumber()).toEqual(CheckpointNumber(2));
+    }, 20_000);
+
     it('detects a same-number replacement behind the syncpoint after a rejected checkpoint reorgs out', async () => {
       // A rejected checkpoint advances the L1 sync point past its L1 block. If an L1 reorg then drops it and a
       // valid checkpoint with the same number lands at an earlier L1 block, the stale rejected marker must not be
