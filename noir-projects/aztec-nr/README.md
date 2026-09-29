@@ -40,12 +40,12 @@ Aztec.nr is a gigantic Noir library, which seeks to hide-away all of the complex
 
 ## Writing an Aztec smart contract with `aztec-nr`
 
-See [here](https://docs.aztec.network/developers/guides/smart_contracts) for more details.
+See [here](https://docs.aztec.network/developers/docs/aztec-nr) for more details.
 
 - Create a Noir project
 - Import `aztec-nr` as a dependency
 - Use the various annotations, state variables, and libraries of `aztec-nr` to write your smart contract.
-- See some example contracts [here](https://github.com/AztecProtocol/aztec-packages/tree/master/noir-projects/noir-contracts/contracts).
+- See some example contracts [here](https://github.com/aztec-labs-eng/aztec-node/tree/main/noir-projects/noir-contracts/contracts).
 
 
 ## Directory Structure
@@ -58,7 +58,7 @@ This noir workspace contains multiple packages. You can import these packages in
 
 // Helpful types that are commonly used alongside the `aztec` library:
 ├── uint-note           // An off-the-shelf Note struct, for storing a private u128
-├── value-note          // An off-the-shelf Note struct, for storing a private Field
+├── field-note          // An off-the-shelf Note struct, for storing a private Field
 └── address-note        // An off-the-shelf Note struct, for storing a private AztecAddress
 ```
 
@@ -80,13 +80,13 @@ type = "contract"
 
 [dependencies]
 # To install the aztec framework (required to create aztec contracts). Pin every aztec-nr
-# dependency to the latest stable release: the newest tag in
-# https://github.com/aztec-labs-eng/aztec-nr/tags without a -nightly or -rc suffix. This is the
-# version aztec-up installs by default, and the tag must match your `aztec --version`.
-aztec = { git = "https://github.com/aztec-labs-eng/aztec-nr", tag = "v6.0.0", directory = "aztec" }
+# dependency to the newest non-nightly tag in
+# https://github.com/aztec-labs-eng/aztec-nr/tags (prefer a tag without -rc when one exists;
+# currently the newest non-nightly is an -rc). The tag must match your `aztec --version`.
+aztec = { git = "https://github.com/aztec-labs-eng/aztec-nr", tag = "v6.0.0-rc.1", directory = "aztec" }
 
 # Optional libraries
-field_note = { git = "https://github.com/aztec-labs-eng/aztec-nr", tag = "v6.0.0", directory = "field-note" }
+field_note = { git = "https://github.com/aztec-labs-eng/aztec-nr", tag = "v6.0.0-rc.1", directory = "field-note" }
 ```
 
 ## Installation
